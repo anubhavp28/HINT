@@ -32,9 +32,6 @@ for i in h.history:
 
 model.predict()
 from time import time
-from pymongo import MongoClient
-client = MongoClient('3.94.109.234')
-db = client.ci
 
 build_info = {"build_time" : int(time())}
 def _convert(t):
@@ -49,20 +46,22 @@ for i in h.history:
 for param in dir(TestLang):
     if param.isupper():
         build_info[param] = _convert(getattr(TestLang, param))
+
+from github import Github
+g = Github("riti1302", "ritika@501")
+master = g.get_repo("anubhavp28/dataset").get_branch("master")
+last_commit = master.commit.sha
+build_info['last_dataset_commit'] = last_commit
+
+master = g.get_repo("anubhavp28/HINT").get_branch("master")
+last_commit = master.commit.sha
+build_info['last_code_commit'] = last_commit
+
 print(build_info) 
 
-print("Prev build")
-import pymongo
-prev_build = list(db.builds.find().sort([('build_time', pymongo.DESCENDING)]))[0]
-print(prev_build)
-TestLang.prev = TestLangClass()
-for k, v in prev_build.items():
-    if k.isupper():
-        setattr(TestLang.prev, k, v)
-
 db.builds.insert(build_info)
-try:
-    import tests
-except:
-    print("TESTS FAILED")
-    sys.exit(-1)
+#try:
+import tests
+#except:
+    #print("TESTS FAILED")
+    #sys.exit(-1)

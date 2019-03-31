@@ -164,3 +164,22 @@ def predict_func(func):
         print("NO_OF_CORRECT_PREDICTIONS", TestLang.NO_OF_CORRECT_PREDICTIONS)
         print("NO_OF_WRONG_PREDICTIONS", TestLang.NO_OF_WRONG_PREDICTIONS)
     return wrapper
+
+from pymongo import MongoClient
+client = MongoClient('3.94.109.234')
+db = client.ci
+print("Prev build")
+import pymongo
+builds = list(db.builds.find().sort([('build_time', pymongo.DESCENDING)]))
+
+TestLang.prev = []
+def use_prev(i):
+    for j in range(i):    
+        prev_build = builds[j]
+        print(prev_build)
+        t = TestLangClass()
+        for k, v in prev_build.items():
+            if k.isupper():
+                setattr(t, k, v)
+        TestLang.prev.append(t)
+    
